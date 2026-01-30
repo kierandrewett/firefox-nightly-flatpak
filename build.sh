@@ -1,9 +1,7 @@
 #!/usr/bin/env bash
 set -euox pipefail
 
-APP_ID="org.mozilla.FirefoxNightly"
-RUNTIME_VERSION="24.08"
-ARCH="x86_64"
+source ./config.sh
 
 REDIRECT_URL="https://download.mozilla.org/?product=firefox-nightly-latest-ssl&os=linux64&lang=en-US"
 

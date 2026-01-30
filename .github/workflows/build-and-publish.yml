@@ -36,7 +36,8 @@ jobs:
 
       - name: Install required runtimes
         run: |
-          flatpak --user install -y flathub org.freedesktop.Platform//24.08 org.freedesktop.Sdk//24.08
+          source ./config.sh
+          flatpak --user install -y flathub org.freedesktop.Platform//$RUNTIME_VERSION org.freedesktop.Sdk//$RUNTIME_VERSION
 
       - name: Build Flatpak and repo
         run: |
