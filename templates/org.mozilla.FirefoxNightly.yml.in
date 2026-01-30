@@ -1,7 +1,11 @@
-app-id: org.mozilla.FirefoxNightly
+app-id: @APP_ID@
 runtime: org.freedesktop.Platform
 runtime-version: "@RUNTIME_VERSION@"
 sdk: org.freedesktop.Sdk
+
+base-app: org.mozilla.firefox.BaseApp
+base-app-version: "@RUNTIME_VERSION@"
+
 command: firefox
 
 finish-args:
@@ -11,9 +15,9 @@ finish-args:
   - --socket=fallback-x11
   - --socket=pulseaudio
   - --device=dri
-  - --filesystem=home
+  - --persist=.mozilla
   - --env=MOZ_ENABLE_WAYLAND=1
-  - --env=MOZ_APP_REMOTINGNAME=firefox-nightly
+  - --own-name=org.mozilla.firefox.*
 
 modules:
   - name: firefox-nightly
@@ -21,26 +25,31 @@ modules:
     build-commands:
       - install -d /app/lib/firefox
       - tar -xf firefox.tar.xz -C /app/lib/firefox --strip-components=1
+
       - install -d /app/bin
-      - ln -sf /app/lib/firefox/firefox /app/bin/firefox
+      - ln -s /app/lib/firefox/firefox /app/bin/firefox
 
-      - install -d /app/share/applications
-      - install -m 0644 org.mozilla.FirefoxNightly.desktop /app/share/applications/
+      - install -Dm0644 @APP_ID@.desktop /app/share/applications/@APP_ID@.desktop
+      - install -Dm0644 @APP_ID@.appdata.xml /app/share/metainfo/@APP_ID@.metainfo.xml
 
-      - install -d /app/share/metainfo
-      - install -m 0644 org.mozilla.FirefoxNightly.appdata.xml /app/share/metainfo/
+      - |
+        for s in 16 32 48 64 128; do \
+          install -Dm0644 \
+            /app/lib/firefox/browser/chrome/icons/default/default${s}.png \
+            /app/share/icons/hicolor/${s}x${s}/apps/@APP_ID@.png; \
+        done
 
-      - install -d /app/share/icons/hicolor/128x128/apps
-      - install -m 0644 /app/lib/firefox/browser/chrome/icons/default/default128.png /app/share/icons/hicolor/128x128/apps/org.mozilla.FirefoxNightly.png
-
+      - install -Dm0644 policies.json /app/lib/firefox/distribution/policies.json
 
     sources:
       - type: file
         path: firefox.tar.xz
-        dest-filename: firefox.tar.xz
 
       - type: file
-        path: org.mozilla.FirefoxNightly.desktop
+        path: @APP_ID@.desktop
 
       - type: file
-        path: org.mozilla.FirefoxNightly.appdata.xml
+        path: @APP_ID@.appdata.xml
+
+      - type: file
+        path: policies.json

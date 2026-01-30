@@ -11,6 +11,11 @@ REPO_DIR="$WORKDIR/repo"
 BUILD_DIR="$WORKDIR/build-dir"
 DIST_DIR="$WORKDIR/dist"
 
+rm -rf .flatpak-builder
+rm -rf "$REPO_DIR"
+rm -rf "$BUILD_DIR"
+rm -rf "$DIST_DIR"
+
 mkdir -p "$DIST_DIR"
 
 echo "Resolving Nightly download URL…"
@@ -25,19 +30,39 @@ curl -L "$FINAL_URL" -o "$TMP/firefox.tar.xz"
 # place tarball where flatpak-builder can see it
 cp "$TMP/firefox.tar.xz" "$DIST_DIR/firefox.tar.xz"
 
+FIREFOX_VERSION="$(tar -xf "$DIST_DIR/firefox.tar.xz" --to-stdout firefox/application.ini | grep '^Version=' | cut -d'=' -f2)"
+echo "Detected Firefox version: $FIREFOX_VERSION"
+
 # manifest
 sed \
   -e "s|@RUNTIME_VERSION@|$RUNTIME_VERSION|g" \
+  -e "s|@APP_ID@|$APP_ID|g" \
   "$WORKDIR/templates/org.mozilla.FirefoxNightly.yml.in" \
   > "$DIST_DIR/$APP_ID.yml"
 
 cp "$WORKDIR/templates/org.mozilla.FirefoxNightly.desktop.in" \
    "$DIST_DIR/$APP_ID.desktop"
 
-cp "$WORKDIR/templates/org.mozilla.FirefoxNightly.appdata.xml" \
-   "$DIST_DIR/$APP_ID.appdata.xml"
+sed \
+  -e "s|@APP_ID@|$APP_ID|g" \
+  -e "s|@PKG_VERSION@|$FIREFOX_VERSION-$(date +%Y-%m-%d)|g" \
+  -e "s|@DATE@|$(date +%Y-%m-%d)|g" \
+  "$WORKDIR/templates/org.mozilla.FirefoxNightly.appdata.xml.in" \
+  > "$DIST_DIR/$APP_ID.appdata.xml"
+
+# policies
+# install -Dm644 "${srcdir}"/policies.json -t "${pkgdir}"/${OPT_PATH}/distribution
+cp "$WORKDIR/templates/policies.json" "$DIST_DIR/policies.json"
    
 echo "Building Flatpak…"
+
+# ensure flathub exists
+flatpak remote-add --user --if-not-exists flathub \
+  https://dl.flathub.org/repo/flathub.flatpakrepo
+
+# install Firefox BaseApp (Mozilla does this)
+flatpak install --user -y flathub \
+  org.mozilla.firefox.BaseApp/$ARCH/$RUNTIME_VERSION --no-deps
 
 flatpak-builder \
   --user \
