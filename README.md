@@ -7,8 +7,8 @@ Repository hosting builds of Firefox Nightly for Flatpak.
 Add this repo as a Flatpak remote and install Firefox Nightly with:
 
 ```bash
-flatpak remote-add --if-not-exists firefox-nightly https://kierandrewett.github.io/firefox-nightly-flatpak/ --no-gpg-verify
-flatpak install -y firefox-nightly org.mozilla.FirefoxNightly
+flatpak --user remote-add --no-gpg-verify --if-not-exists firefox-nightly https://kierandrewett.github.io/firefox-nightly-flatpak/
+flatpak install --user -y firefox-nightly org.mozilla.FirefoxNightly
 ```
 
 To update later:
