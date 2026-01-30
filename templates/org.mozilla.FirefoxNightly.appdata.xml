@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop">
+  <id>org.mozilla.FirefoxNightly</id>
+  <name>Firefox Nightly</name>
+  <summary>Nightly build of Firefox</summary>
+  <metadata_license>CC0-1.0</metadata_license>
+  <project_license>MPL-2.0</project_license>
+  <description>
+    <p>Pre-release nightly build of Firefox for testing.</p>
+  </description>
+</component>

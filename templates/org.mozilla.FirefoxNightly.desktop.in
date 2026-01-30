@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Firefox Nightly
+Exec=firefox %u
+Icon=org.mozilla.FirefoxNightly
+Categories=Network;WebBrowser;
+MimeType=text/html;x-scheme-handler/http;x-scheme-handler/https;
+Terminal=false
