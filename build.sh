@@ -29,14 +29,14 @@ cp "$TMP/firefox.tar.xz" "$DIST_DIR/firefox.tar.xz"
 sed \
   -e "s|@RUNTIME_VERSION@|$RUNTIME_VERSION|g" \
   "$WORKDIR/templates/org.mozilla.FirefoxNightly.yml.in" \
-  > "$DIST_DIR/org.mozilla.FirefoxNightly.yml"
+  > "$DIST_DIR/$APP_ID.yml"
 
 cp "$WORKDIR/templates/org.mozilla.FirefoxNightly.desktop.in" \
-   "$DIST_DIR/org.mozilla.FirefoxNightly.desktop"
+   "$DIST_DIR/$APP_ID.desktop"
 
 cp "$WORKDIR/templates/org.mozilla.FirefoxNightly.appdata.xml" \
-   "$DIST_DIR/org.mozilla.FirefoxNightly.appdata.xml"
-
+   "$DIST_DIR/$APP_ID.appdata.xml"
+   
 echo "Building Flatpak…"
 
 flatpak-builder \
@@ -44,7 +44,7 @@ flatpak-builder \
   --force-clean \
   --repo="$REPO_DIR" \
   "$BUILD_DIR" \
-  "$DIST_DIR/org.mozilla.FirefoxNightly.yml"
+  "$DIST_DIR/$APP_ID.yml"
 
 if [ -n "${CI:-}" ]; then
   # Add a simple HTML landing page in the repo for GitHub Pages (CI only).
@@ -68,7 +68,7 @@ EOF
 fi
 
 if [ -z "${CI:-}" ]; then
-  flatpak uninstall -y org.mozilla.FirefoxNightly || true
+  flatpak uninstall -y "$APP_ID" || true
 
   flatpak remote-delete firefox-nightly-local || true
   flatpak remote-add --no-gpg-verify firefox-nightly-local "$REPO_DIR"
