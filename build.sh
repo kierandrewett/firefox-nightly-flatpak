@@ -48,6 +48,27 @@ flatpak-builder \
   "$BUILD_DIR" \
   "$DIST_DIR/org.mozilla.FirefoxNightly.yml"
 
+if [ -n "${CI:-}" ]; then
+  # Add a simple HTML landing page in the repo for GitHub Pages (CI only).
+  cat >"$REPO_DIR/index.html" <<'EOF'
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Firefox Nightly Flatpak Repo</title>
+    <meta http-equiv="refresh" content="0; url=https://github.com/kierandrewett/firefox-nightly-flatpak" />
+  </head>
+  <body>
+    <p>
+      If you are not redirected automatically, visit
+      <a href="https://github.com/kierandrewett/firefox-nightly-flatpak">the GitHub repository</a>.
+    </p>
+  </body>
+</html>
+EOF
+fi
+
 if [ -z "${CI:-}" ]; then
   flatpak uninstall -y org.mozilla.FirefoxNightly || true
 
