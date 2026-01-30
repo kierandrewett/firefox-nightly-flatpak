@@ -41,18 +41,21 @@ cp "$WORKDIR/templates/org.mozilla.FirefoxNightly.appdata.xml" \
 
 echo "Building Flatpak…"
 
-flatpak uninstall -y org.mozilla.FirefoxNightly || true
-
 flatpak-builder \
+  --user \
   --force-clean \
   --repo="$REPO_DIR" \
   "$BUILD_DIR" \
   "$DIST_DIR/org.mozilla.FirefoxNightly.yml"
 
-flatpak remote-delete firefox-nightly-local || true
-flatpak remote-add --no-gpg-verify firefox-nightly-local "$REPO_DIR"
+if [ -z "${CI:-}" ]; then
+  flatpak uninstall -y org.mozilla.FirefoxNightly || true
 
-flatpak install -y firefox-nightly-local "$APP_ID" || \
-flatpak update -y "$APP_ID"
+  flatpak remote-delete firefox-nightly-local || true
+  flatpak remote-add --no-gpg-verify firefox-nightly-local "$REPO_DIR"
+
+  flatpak install -y firefox-nightly-local "$APP_ID" || \
+  flatpak update -y "$APP_ID"
+fi
 
 echo "Done."
