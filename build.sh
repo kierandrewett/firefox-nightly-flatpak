@@ -30,8 +30,17 @@ curl -L "$FINAL_URL" -o "$TMP/firefox.tar.xz"
 # place tarball where flatpak-builder can see it
 cp "$TMP/firefox.tar.xz" "$DIST_DIR/firefox.tar.xz"
 
-FIREFOX_VERSION="$(tar -xf "$DIST_DIR/firefox.tar.xz" --to-stdout firefox/application.ini | grep '^Version=' | cut -d'=' -f2)"
-echo "Detected Firefox version: $FIREFOX_VERSION"
+APP_INI="$(tar -xf "$DIST_DIR/firefox.tar.xz" --to-stdout firefox/application.ini)"
+FIREFOX_VERSION="$(echo "$APP_INI" | grep '^Version=' | cut -d'=' -f2)"
+FIREFOX_BUILDID="$(echo "$APP_INI" | grep '^BuildID=' | cut -d'=' -f2)"
+echo "Detected Firefox version: $FIREFOX_VERSION (build $FIREFOX_BUILDID)"
+
+# Record the resolved build so CI can commit a version bump. Pushing a
+# commit on each new Nightly keeps the scheduled workflow from being
+# disabled after 60 days of repository inactivity.
+if [ -n "${CI:-}" ]; then
+  echo "$FIREFOX_VERSION (build $FIREFOX_BUILDID)" > "$WORKDIR/LATEST_VERSION"
+fi
 
 # manifest
 sed \

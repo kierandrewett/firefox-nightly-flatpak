@@ -9,7 +9,7 @@ on:
     - cron: '0 16 * * *' # every day at 16:00 UTC
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -43,6 +43,22 @@ jobs:
         run: |
           chmod +x build.sh
           ./build.sh
+
+      - name: Commit version bump to keep the schedule alive
+        run: |
+          if [ ! -f LATEST_VERSION ]; then
+            echo "build.sh did not produce LATEST_VERSION; skipping."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add LATEST_VERSION
+          if git diff --staged --quiet; then
+            echo "No new Nightly build since last run; nothing to commit."
+          else
+            git commit -m "Update Nightly to $(cat LATEST_VERSION) [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          fi
 
       - name: Upload Flatpak repo as artifact for Pages
         uses: actions/upload-pages-artifact@v3
