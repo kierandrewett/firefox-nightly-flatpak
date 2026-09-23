@@ -80,6 +80,9 @@ flatpak-builder \
   "$BUILD_DIR" \
   "$DIST_DIR/$APP_ID.yml"
 
+# Publish the AppStream catalog refs alongside the app and runtime refs.
+flatpak build-update-repo "$REPO_DIR"
+
 if [ -n "${CI:-}" ]; then
   # Add a simple HTML landing page in the repo for GitHub Pages (CI only).
   cat >"$REPO_DIR/index.html" <<'EOF'
