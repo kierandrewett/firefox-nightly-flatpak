@@ -28,7 +28,7 @@ jobs:
       - name: Install Flatpak and Flatpak Builder
         run: |
           sudo apt-get update
-          sudo apt-get install -y flatpak flatpak-builder
+          sudo apt-get install -y flatpak flatpak-builder xvfb x11-utils
 
       - name: Add Flathub remote
         run: |
@@ -43,6 +43,13 @@ jobs:
         run: |
           chmod +x build.sh
           ./build.sh
+
+      - name: Install and launch Firefox Nightly through Flatpak
+        env:
+          FLATPAK_USER_DIR: ${{ runner.temp }}/flatpak-smoke-test
+        run: |
+          xvfb-run --auto-servernum --server-args="-screen 0 1280x800x24" \
+            bash ./ci/smoke-test-flatpak.sh
 
       - name: Commit version bump to keep the schedule alive
         run: |
