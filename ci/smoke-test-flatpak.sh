@@ -17,7 +17,7 @@ timeout --signal=TERM --kill-after=5s 45s \
 firefox_pid=$!
 
 cleanup() {
-  timeout --kill-after=2s 10s flatpak --user kill "$APP_ID" >/dev/null 2>&1 || true
+  timeout --kill-after=2s 10s flatpak kill "$APP_ID" >/dev/null 2>&1 || true
   wait "$firefox_pid" || true
 }
 trap cleanup EXIT
