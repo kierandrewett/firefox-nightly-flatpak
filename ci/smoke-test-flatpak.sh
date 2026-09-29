@@ -7,15 +7,17 @@ flatpak --user remote-add --if-not-exists flathub \
   https://dl.flathub.org/repo/flathub.flatpakrepo
 flatpak --user remote-add --no-gpg-verify --if-not-exists \
   firefox-nightly-local "$PWD/repo"
-flatpak --user install --assumeyes firefox-nightly-local "$APP_ID"
-flatpak --user info "$APP_ID"
+timeout --kill-after=5s 10m \
+  flatpak --user install --assumeyes firefox-nightly-local "$APP_ID"
+timeout --kill-after=5s 30s flatpak --user info "$APP_ID"
 
 unset WAYLAND_DISPLAY
-flatpak --user run "$APP_ID" about:blank &
+timeout --signal=TERM --kill-after=5s 45s \
+  flatpak --user run "$APP_ID" about:blank &
 firefox_pid=$!
 
 cleanup() {
-  flatpak --user kill "$APP_ID" >/dev/null 2>&1 || true
+  timeout --kill-after=2s 10s flatpak --user kill "$APP_ID" >/dev/null 2>&1 || true
   wait "$firefox_pid" || true
 }
 trap cleanup EXIT
